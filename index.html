@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>插件市场 · AstrBot Go</title>
+    <style>
+        /* ---------- 全局 ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f4f6f9;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+            color: #1e2a3a;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+            padding: 32px 36px 40px;
+        }
+
+        /* ---------- 头部 ---------- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eef2f6;
+            margin-bottom: 24px;
+        }
+
+        .market-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .market-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0b1a2e;
+        }
+
+        .market-meta {
+            font-size: 14px;
+            color: #4a5a72;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 4px;
+        }
+
+        .market-meta span {
+            background: #f0f2f5;
+            padding: 2px 14px;
+            border-radius: 30px;
+        }
+
+        .market-meta a {
+            color: #1f6fb0;
+            text-decoration: none;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 40px;
+            border: 1px solid #d0d7de;
+            background: #ffffff;
+            color: #24292f;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.15s;
+            background: #f6f8fa;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #e1e4e8;
+            border-color: #b0b8c4;
+        }
+
+        .btn-primary {
+            background: #1f883d;
+            border-color: #1f883d;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1a7a34;
+            border-color: #1a7a34;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: #d0d7de;
+        }
+
+        /* ---------- 状态栏 ---------- */
+        .status-bar {
+            background: #f6f8fa;
+            padding: 10px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #2c3e50;
+            gap: 8px;
+        }
+
+        .status-bar .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-bar .dot.loading {
+            background: #d4a72c;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .status-bar .dot.success {
+            background: #2da44e;
+        }
+
+        .status-bar .dot.error {
+            background: #cf222e;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .status-bar .file-path {
+            font-family: 'JetBrains Mono', monospace;
+            background: #e1e4e8;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        /* ---------- 插件卡片网格 ---------- */
+        .plugin-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-top: 12px;
+        }
+
+        .plugin-card {
+            background: #fafbfc;
+            border-radius: 16px;
+            border: 1px solid #eef2f6;
+            padding: 24px 28px;
+            transition: 0.15s;
+        }
+
+        .plugin-card:hover {
+            border-color: #d0d7de;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .plugin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .plugin-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0b1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .plugin-name .version {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5a72;
+            background: #eef2f6;
+            padding: 1px 14px;
+            border-radius: 30px;
+        }
+
+        .plugin-id {
+            font-size: 13px;
+            color: #5e6f8d;
+            font-family: 'JetBrains Mono', monospace;
+            background: #eef2f6;
+            padding: 2px 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .plugin-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #edf0f4;
+            padding-bottom: 14px;
+        }
+
+        .plugin-meta-row a {
+            color: #1f6fb0;
+            text-decoration: none;
+        }
+
+        .plugin-meta-row a:hover {
+            text-decoration: underline;
+        }
+
+        .plugin-desc {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #1e2a3a;
+            margin-bottom: 16px;
+        }
+
+        .plugin-desc .short {
+            font-weight: 500;
+        }
+
+        .plugin-desc .full {
+            color: #3d4d64;
+            margin-top: 4px;
+        }
+
+        .plugin-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .tag {
+            background: #eef2f6;
+            padding: 2px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .badge {
+            background: #dce3ed;
+            padding: 1px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #1e2a3a;
+        }
+
+        /* 子卡片：命令、配置、运行时 */
+        .sub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .sub-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 14px 18px;
+            border: 1px solid #eef2f6;
+        }
+
+        .sub-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4d64;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sub-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sub-card li {
+            padding: 4px 0;
+            border-bottom: 1px solid #edf0f4;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sub-card li:last-child {
+            border-bottom: none;
+        }
+
+        .sub-card .label {
+            color: #5e6f8d;
+        }
+
+        .sub-card .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .command-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .command-table th {
+            text-align: left;
+            padding: 6px 4px 6px 0;
+            font-weight: 600;
+            color: #3d4d64;
+            border-bottom: 1px solid #dce3ed;
+        }
+
+        .command-table td {
+            padding: 6px 4px 6px 0;
+            border-bottom: 1px solid #edf0f4;
+            vertical-align: top;
+        }
+
+        .command-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cmd-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .cmd-aliases {
+            color: #5e6f8d;
+            font-size: 12px;
+        }
+
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #edf0f4;
+            font-size: 13px;
+        }
+
+        .config-item:last-child {
+            border-bottom: none;
+        }
+
+        .config-item .key {
+            font-weight: 500;
+        }
+
+        .config-item .default {
+            color: #5e6f8d;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .config-item .desc {
+            color: #5e6f8d;
+            font-size: 12px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* 原始 JSON 折叠 */
+        .raw-json-section {
+            margin-top: 32px;
+            border-top: 2px solid #eef2f6;
+            padding-top: 20px;
+        }
+
+        .raw-toggle {
+            background: none;
+            border: none;
+            color: #1f6fb0;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .raw-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .raw-json-box {
+            margin-top: 12px;
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 16px 20px;
+            overflow: auto;
+            max-height: 400px;
+            display: none;
+        }
+
+        .raw-json-box.open {
+            display: block;
+        }
+
+        .raw-json-box pre {
+            margin: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #f0f6fc;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* 响应式 */
+        @media (max-width: 800px) {
+            .sub-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px 16px;
+            }
+            .market-name {
+                font-size: 22px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header-actions {
+                justify-content: flex-start;
+            }
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .plugin-name {
+                font-size: 18px;
+            }
+            .plugin-card {
+                padding: 16px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 6px 14px;
+            }
+        }
+
+        /* 加载/错误 */
+        .loading-placeholder,
+        .error-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: #5e6f8d;
+            text-align: center;
+        }
+
+        .loading-placeholder .spinner {
+            width: 38px;
+            height: 38px;
+            border: 3.5px solid #dce3ed;
+            border-top-color: #1f6fb0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-placeholder .err-icon {
+            font-size: 44px;
+            margin-bottom: 10px;
+        }
+        .error-placeholder .detail {
+            background: #f0f2f5;
+            padding: 6px 18px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            max-width: 100%;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="market-info">
+                <div class="market-name" id="marketName">插件市场</div>
+                <div class="market-meta" id="marketMeta">
+                    <span id="marketVersion">v1</span>
+                    <span id="marketMaintainer">维护者</span>
+                    <span id="marketUpdated">更新于</span>
+                    <span><a id="marketRepo" href="#" target="_blank">主仓库</a></span>
+                    <span><a id="marketSdkRepo" href="#" target="_blank">SDK</a></span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a id="rawFileLink" href="package.json" target="_blank" class="btn btn-outline" rel="noopener">📄 原始 JSON</a>
+                <button class="btn btn-primary" id="copyBtn">📋 复制 JSON</button>
+            </div>
+        </div>
+
+        <!-- 状态 -->
+        <div class="status-bar" id="statusBar">
+            <span>
+                <span class="dot loading" id="statusDot"></span>
+                <span id="statusText">正在加载 package.json …</span>
+            </span>
+            <span class="file-path" id="fileInfo">📁 /package.json</span>
+        </div>
+
+        <!-- 插件列表 -->
+        <div id="pluginContainer">
+            <div class="loading-placeholder">
+                <div class="spinner"></div>
+                <p>加载插件列表中…</p>
+            </div>
+        </div>
+
+        <!-- 原始 JSON 折叠 -->
+        <div class="raw-json-section">
+            <button class="raw-toggle" id="rawToggle">📜 显示原始 JSON</button>
+            <div class="raw-json-box" id="rawJsonBox">
+                <pre id="rawJsonPre"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- DOM 引用 ----------
+            const marketName = document.getElementById('marketName');
+            const marketVersion = document.getElementById('marketVersion');
+            const marketMaintainer = document.getElementById('marketMaintainer');
+            const marketUpdated = document.getElementById('marketUpdated');
+            const marketRepo = document.getElementById('marketRepo');
+            const marketSdkRepo = document.getElementById('marketSdkRepo');
+            const rawFileLink = document.getElementById('rawFileLink');
+            const copyBtn = document.getElementById('copyBtn');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const fileInfo = document.getElementById('fileInfo');
+            const pluginContainer = document.getElementById('pluginContainer');
+            const rawToggle = document.getElementById('rawToggle');
+            const rawJsonBox = document.getElementById('rawJsonBox');
+            const rawJsonPre = document.getElementById('rawJsonPre');
+
+            const TARGET = 'package.json'; // 文件名
+
+            // ---------- 工具函数 ----------
+            function safeStr(v) { return v || '—'; }
+
+            function joinArr(arr) { return Array.isArray(arr) ? arr.join(' · ') : '—'; }
+
+            function formatDate(iso) {
+                if (!iso) return '—';
+                try {
+                    const d = new Date(iso);
+                    return d.toLocaleString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit' });
+                } catch { return iso; }
+            }
+
+            // ---------- 渲染插件卡片 ----------
+            function renderPlugin(id, plugin) {
+                const displayName = plugin.display_name || plugin.name || id;
+                const version = plugin.version || '0.0.0';
+                const shortDesc = plugin.short_desc || '';
+                const fullDesc = plugin.desc || plugin.description || '';
+                const author = plugin.author || '未知';
+                const repo = plugin.repo || '';
+                const homepage = plugin.homepage || '';
+                const license = plugin.license || '';
+                const tags = plugin.tags || [];
+                const category = plugin.category || '';
+                const stars = plugin.stars || 0;
+                const downloads = plugin.download_count || 0;
+                const platforms = plugin.support_platforms || [];
+                const astrbotVer = plugin.astrbot_version || '';
+                const updated = plugin.updated_at || '';
+
+                const runtime = plugin.runtime || {};
+                const sdkVer = runtime.sdk_version || '—';
+                const goVer = runtime.go_version || '—';
+                const entry = runtime.entry || '—';
+                const cgo = runtime.cgo ? '启用' : '禁用';
+                const arch = runtime.arch || [];
+
+                const commands = plugin.commands || [];
+                const configSchema = plugin.config_schema || {};
+                const configProps = configSchema.properties || {};
+
+                let html = `
+                    <div class="plugin-card">
+                        <div class="plugin-header">
+                            <div class="plugin-name">
+                                ${displayName}
+                                <span class="version">v${version}</span>
+                                <span class="plugin-id">${id}</span>
+                            </div>
+                            <div>
+                                <span class="badge">${category || '未分类'}</span>
+                                <span style="margin-left:8px;">⭐ ${stars}  ⬇️ ${downloads}</span>
+                            </div>
+                        </div>
+                        <div class="plugin-meta-row">
+                            <span>👤 ${author}</span>
+                            ${homepage ? `<span><a href="${homepage}" target="_blank">主页</a></span>` : ''}
+                            ${repo ? `<span><a href="${repo}" target="_blank">仓库</a></span>` : ''}
+                            ${license ? `<span class="badge">${license}</span>` : ''}
+                            <span>📅 ${formatDate(updated)}</span>
+                            <span>🤖 ${safeStr(astrbotVer)}</span>
+                        </div>
+                        <div class="plugin-desc">
+                            <div class="short">${safeStr(shortDesc)}</div>
+                            ${fullDesc ? `<div class="full">${fullDesc}</div>` : ''}
+                        </div>
+                        <div class="plugin-tags">
+                            ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                            ${platforms.map(p => `<span class="tag">📱 ${p}</span>`).join('')}
+                        </div>
+
+                        <div class="sub-grid">
+                            <!-- 运行时 -->
+                            <div class="sub-card">
+                                <h4>🖥️ 运行时</h4>
+                                <ul>
+                                    <li><span class="label">SDK 版本</span><span class="value">${sdkVer}</span></li>
+                                    <li><span class="label">Go 版本</span><span class="value">${goVer}</span></li>
+                                    <li><span class="label">入口</span><span class="value">${entry}</span></li>
+                                    <li><span class="label">CGO</span><span class="value">${cgo}</span></li>
+                                    <li><span class="label">架构</span><span class="value">${joinArr(arch)}</span></li>
+                                </ul>
+                            </div>
+
+                            <!-- 配置项 -->
+                            <div class="sub-card">
+                                <h4>⚙️ 配置项</h4>
+                                ${Object.keys(configProps).length === 0 ? '<div style="color:#5e6f8d;font-size:14px;">无配置项</div>' :
+                                    Object.entries(configProps).map(([key, prop]) => `
+                                        <div class="config-item">
+                                            <span class="key">${key}</span>
+                                            <span class="default">${prop.default !== undefined ? '默认: ' + JSON.stringify(prop.default) : ''}</span>
+                                            <span class="desc">${prop.description || ''}</span>
+                                        </div>
+                                    `).join('')
+                                }
+                            </div>
+
+                            <!-- 命令（全宽） -->
+                            ${commands.length > 0 ? `
+                            <div class="sub-card full-width">
+                                <h4>⌨️ 命令</h4>
+                                <table class="command-table">
+                                    <thead><tr><th>命令</th><th>别名</th><th>描述</th><th>用法</th><th>权限</th></tr></thead>
+                                    <tbody>
+                                        ${commands.map(cmd => `
+                                            <tr>
+                                                <td class="cmd-name">${safeStr(cmd.name)}</td>
+                                                <td class="cmd-aliases">${cmd.aliases ? cmd.aliases.join(', ') : '—'}</td>
+                                                <td>${safeStr(cmd.description)}</td>
+                                                <td><code style="background:#eef2f6;padding:1px 8px;border-radius:6px;font-size:12px;">${safeStr(cmd.usage)}</code></td>
+                                                <td><span class="badge">${safeStr(cmd.permission)}</span></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                return html;
+            }
+
+            // ---------- 加载市场数据 ----------
+            async function loadMarket() {
+                const fullUrl = new URL(TARGET, window.location.href).href;
+                rawFileLink.href = fullUrl;
+
+                statusDot.className = 'dot loading';
+                statusText.textContent = '正在加载 package.json …';
+                fileInfo.textContent = '📁 /' + TARGET;
+
+                try {
+                    const resp = await fetch(TARGET, { cache: 'no-store' });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+
+                    const text = await resp.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('JSON 解析失败: ' + e.message);
+                    }
+
+                    // 成功
+                    statusDot.className = 'dot success';
+                    statusText.textContent = '✅ 加载成功';
+                    const size = new Blob([text]).size;
+                    fileInfo.textContent = `📁 /${TARGET}  ·  ${size < 1024 ? size + ' B' : (size/1024).toFixed(1) + ' KB'}`;
+
+                    // 存储原始数据
+                    document.getElementById('app').dataset.rawJson = text;
+                    rawJsonPre.textContent = text;
+
+                    // ---------- 解析市场元数据 ----------
+                    const meta = data.$meta || {};
+                    marketName.textContent = meta.name || '插件市场';
+                    marketVersion.textContent = meta.version ? 'v' + meta.version : 'v1';
+                    marketMaintainer.textContent = '维护者: ' + (meta.maintainer || '未知');
+                    marketUpdated.textContent = '更新: ' + formatDate(meta.updated_at);
+                    if (meta.main_repo) {
+                        marketRepo.href = meta.main_repo;
+                        marketRepo.textContent = '主仓库';
+                    } else {
+                        marketRepo.parentElement.style.display = 'none';
+                    }
+                    if (meta.sdk_repo) {
+                        marketSdkRepo.href = meta.sdk_repo;
+                        marketSdkRepo.textContent = 'SDK';
+                    } else {
+                        marketSdkRepo.parentElement.style.display = 'none';
+                    }
+
+                    // ---------- 提取插件列表 ----------
+                    const pluginKeys = Object.keys(data).filter(key => key !== '$meta');
+                    if (pluginKeys.length === 0) {
+                        pluginContainer.innerHTML = `<div class="error-placeholder"><div class="err-icon">📭</div><p>未找到任何插件数据</p></div>`;
+                        return;
+                    }
+
+                    let html = `<div class="plugin-grid">`;
+                    pluginKeys.forEach(id => {
+                        const plugin = data[id];
+                        html += renderPlugin(id, plugin);
+                    });
+                    html += `</div>`;
+                    pluginContainer.innerHTML = html;
+
+                } catch (err) {
+                    statusDot.className = 'dot error';
+                    statusText.textContent = '❌ 加载失败';
+                    fileInfo.textContent = '📁 /' + TARGET;
+
+                    pluginContainer.innerHTML = `
+                        <div class="error-placeholder">
+                            <div class="err-icon">🚫</div>
+                            <p>无法加载 <strong>${TARGET}</strong></p>
+                            <div class="detail">${err.message}</div>
+                            <p style="margin-top:16px;font-size:13px;color:#5e6f8d;">
+                                请确保 <code>${TARGET}</code> 文件与当前页面在同一目录下。
+                            </p>
+                        </div>
+                    `;
+                    document.getElementById('app').dataset.rawJson = '';
+                    rawJsonPre.textContent = '加载失败，无数据';
+                }
+            }
+
+            // ---------- 复制 ----------
+            async function copyText(text, successMsg = '已复制') {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const orig = copyBtn.textContent;
+                    copyBtn.textContent = `✅ ${successMsg}`;
+                    setTimeout(() => copyBtn.textContent = '📋 复制 JSON', 1600);
+                } catch {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    alert('已复制到剪贴板');
+                }
+            }
+
+            // ---------- 事件绑定 ----------
+            copyBtn.addEventListener('click', () => {
+                const raw = document.getElementById('app').dataset.rawJson || '';
+                if (!raw) { alert('暂无数据，请等待加载完成。'); return; }
+                copyText(raw, '已复制 JSON');
+            });
+
+            rawToggle.addEventListener('click', () => {
+                const box = rawJsonBox;
+                box.classList.toggle('open');
+                rawToggle.textContent = box.classList.contains('open') ? '📜 隐藏原始 JSON' : '📜 显示原始 JSON';
+            });
+
+            // ---------- 启动 ----------
+            loadMarket();
+        })();
+    </script>
+
+</body>
+</html>
