@@ -14,22 +14,37 @@
     "short_desc": "把用户消息原样复读回来的最小示例插件。",
     "desc": "Echoes your message back. 这是 AstrBot-Go 子进程插件运行时的最小可运行示例：演示 OnLoad 钩子 + 命令式注册（sdk.RegisterCommand），以及命令的别名、用法与权限声明。",
     "author": "WaterGodFurina",
-    "repo": "https://github.com/WaterGodFurina/Astrbot-golang",
+    "repo": "https://github.com/Astrbot-Go-Market/Astrbot-go-plugin-echo",
     "homepage": "https://github.com/WaterGodFurina/Astrbot-golang",
-    "license": "MIT",
-    "tags": ["echo", "示例", "工具"],
+    "license": "暂无",
+    "tags": [
+      "echo",
+      "示例",
+      "工具"
+    ],
     "category": "tool",
     "social_link": "https://github.com/WaterGodFurina",
     "logo": "",
     "pinned": false,
     "i18n": {
-      "zh-CN": { "display_name": "Echo 回声插件", "short_desc": "原样复读消息的示例插件。" },
-      "en-US": { "display_name": "Echo", "short_desc": "Minimal echo plugin." }
+      "zh-CN": {
+        "display_name": "Echo 回声插件",
+        "short_desc": "原样复读消息的示例插件。"
+      },
+      "en-US": {
+        "display_name": "Echo",
+        "short_desc": "Minimal echo plugin."
+      }
     },
     "download_url": "",
     "updated_at": "2026-08-10T00:00:00Z",
     "astrbot_version": ">=4.16",
-    "support_platforms": ["qqofficial", "aiocqhttp", "telegram", "webchat"],
+    "support_platforms": [
+      "qqofficial",
+      "aiocqhttp",
+      "telegram",
+      "webchat"
+    ],
     "stars": 0,
     "download_count": 0,
     "runtime": {
@@ -37,22 +52,33 @@
       "go_version": ">=1.23",
       "entry": ".",
       "cgo": false,
-      "arch": ["linux", "darwin", "windows"]
+      "arch": [
+        "linux",
+        "darwin",
+        "windows"
+      ]
     },
     "config_schema": {
       "type": "object",
       "properties": {
-        "prefix": { "type": "string", "default": "", "description": "回复时附加的前缀" }
+        "prefix": {
+          "type": "string",
+          "default": "",
+          "description": "回复时附加的前缀"
+        }
       }
     },
     "commands": [
       {
         "name": "echo",
-        "aliases": ["repeat"],
+        "aliases": [
+          "repeat"
+        ],
         "description": "Echoes your message",
         "usage": "echo <text>",
         "permission": "everyone"
       }
-    ]
+    ],
+    "cgo": false
   }
 }
